@@ -8,6 +8,8 @@ namespace server.Repositories.Interfaces
         public void UpdateExpense(int userId, int expenseId, Expense expense);
         public void DeleteExpense(int userId, int expenseId);
         public Expense? GetExpense(int userId, int expenseId);
+        public ICollection<Expense>? GetExpenses(int userId);
+
 
     }
 }

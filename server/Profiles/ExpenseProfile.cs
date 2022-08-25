@@ -9,6 +9,9 @@ namespace server.Profiles
         public ExpenseProfile()
         {
             CreateMap<Expense, ExpenseDto>();
+            CreateMap<ExpenseDto, Expense>();
+            CreateMap<ExpenseToCreateDto, Expense>();
+            CreateMap<ExpenseToUpdateDto, Expense>();
 
         }
     }

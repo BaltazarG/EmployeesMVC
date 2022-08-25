@@ -12,23 +12,47 @@ namespace server.Repositories.Implementations
 
         public void AddExpense(int userId, Expense expense)
         {
+            if(expense != null)
+            {
+                _context.Expenses?.Add(expense);
+                SaveChanges();
+            }
             
         }
 
         public void DeleteExpense(int userId, int expenseId)
         {
-            throw new NotImplementedException();
+            var expenseToRemove = GetExpense(userId, expenseId);
+
+            if (expenseToRemove != null)
+            {
+                _context.Expenses?.Remove(expenseToRemove);
+                SaveChanges();
+
+            }
+
         }
 
         public Expense? GetExpense(int userId, int expenseId)
         {
-            //return _context.Expenses?.FirstOrDefault(e => e.Id == expenseId);
             return _context.Expenses?.Where(e => e.Id == expenseId && e.User.Id == userId).FirstOrDefault();
+        }
+
+        public ICollection<Expense>? GetExpenses(int userId)
+        {
+            return _context.Expenses?.Where(e => e.User.Id == userId).ToList();
         }
 
         public void UpdateExpense(int userId, int expenseId, Expense expense)
         {
-            throw new NotImplementedException();
+            var expenseToUpdate = GetExpense(userId, expenseId);
+
+            if (expenseToUpdate != null)
+            {
+                expenseToUpdate.Description = expense.Description;
+                expenseToUpdate.Amount = expense.Amount;
+                SaveChanges();
+            }
         }
     }
 }
