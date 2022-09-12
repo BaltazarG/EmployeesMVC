@@ -1,6 +1,7 @@
 ﻿using EmployeesMVC.Contexts;
 using EmployeesMVC.Models;
 using EmployeesMVC.Models.Domain;
+using EmployeesMVC.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,16 +9,16 @@ namespace EmployeesMVC.Controllers
 {
     public class EmployeesController : Controller
     {
-        private readonly EmployeesContext _context;
-        public EmployeesController(EmployeesContext context)
+        private readonly IEmployeeRepository _employeeRepository;
+        public EmployeesController(IEmployeeRepository employeeRepository)
         {
-            _context = context;
+            _employeeRepository = employeeRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var employees = await _context.Employees.ToListAsync();
+            var employees = await _employeeRepository.GetEmployees();
             return View(employees);
             
         }
@@ -31,18 +32,7 @@ namespace EmployeesMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddEmployeeViewModel addEmployeeRequest)
         {
-            var employee = new Employee
-            {
-                Id = Guid.NewGuid(),
-                Name = addEmployeeRequest.Name,
-                Email = addEmployeeRequest.Email,
-                Salary = addEmployeeRequest.Salary,
-                DateOfBith = addEmployeeRequest.DateOfBith,
-                Department = addEmployeeRequest.Department
-            };
-
-            await _context.Employees.AddAsync(employee);
-            await _context.SaveChangesAsync();
+            await _employeeRepository.AddEmployee(addEmployeeRequest);
 
             return RedirectToAction("Index");
 
@@ -51,9 +41,9 @@ namespace EmployeesMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> View(Guid id)
         {
-            var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == id);
+            var employee = await _employeeRepository.GetEmployee(id);
 
-            if(employee != null)
+            if (employee != null)
             {
                 var viewModel = new UpdateEmployeeViewModel()
                             {
@@ -74,20 +64,7 @@ namespace EmployeesMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(UpdateEmployeeViewModel model)
         {
-            var employee = await _context.Employees.FindAsync(model.Id);
-
-            if(employee != null)
-            {
-                employee.Name = model.Name;
-                employee.Email = model.Email;
-                employee.Salary = model.Salary;
-                employee.DateOfBith = model.DateOfBith;
-                employee.Department = model.Department;
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index");
-            }
+            await _employeeRepository.UpdateEmployee(model);
             
             return RedirectToAction("Index");
         }
@@ -95,14 +72,8 @@ namespace EmployeesMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(UpdateEmployeeViewModel model)
         {
-            var employee = await _context.Employees.FindAsync(model.Id);
-            if(employee != null)
-            {
-                _context.Employees.Remove(employee);
-                await _context.SaveChangesAsync();
+            await _employeeRepository.RemoveEmployee(model.Id);
 
-                return RedirectToAction("Index");
-            }
             return RedirectToAction("Index");
 
         }

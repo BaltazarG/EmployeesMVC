@@ -1,4 +1,6 @@
 using EmployeesMVC.Contexts;
+using EmployeesMVC.Repositories.Implementations;
+using EmployeesMVC.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<EmployeesContext>(options =>
     options.UseSqlServer(builder.Configuration
-    .GetConnectionString("DefaultConnection"))); 
+    .GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
 
 var app = builder.Build();
 
